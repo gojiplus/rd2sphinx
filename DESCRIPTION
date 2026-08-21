@@ -1,0 +1,25 @@
+Package: rd2sphinx
+Type: Package
+Title: Build Sphinx Documentation for R Packages
+Version: 0.1.0
+Authors@R: person("Gaurav", "Sood", email = "gsood07@gmail.com", role = c("aut", "cre"))
+Description: Converts R documentation ('Rd') topics into semantic Sphinx source
+    files. The package bundles a small Sphinx domain for R functions, data, and
+    help topics, so the generated objects participate in cross-references,
+    search, inventories, and any Sphinx theme, including 'Furo'. It also
+    scaffolds and runs a conventional Sphinx build pipeline.
+License: MIT + file LICENSE
+URL: https://github.com/gojiplus/rd2sphinx
+BugReports: https://github.com/gojiplus/rd2sphinx/issues
+Depends:
+    R (>= 4.2.0)
+Imports:
+    tools,
+    utils
+SystemRequirements: Python (>= 3.10), Sphinx, Furo
+Encoding: UTF-8
+Suggests:
+    testthat (>= 3.0.0)
+Config/roxygen2/markdown: TRUE
+Config/roxygen2/version: 8.0.0
+Config/testthat/edition: 3

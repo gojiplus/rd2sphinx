@@ -1,0 +1,9 @@
+Package: demoR
+Type: Package
+Title: A Small Package for rd2sphinx Integration Tests
+Version: 0.1.0
+Authors@R: person("Demo", "Author", email = "demo@example.com", role = c("aut", "cre"))
+Description: Exercises functions, data, links, lists, fields, examples, and
+    exported-object filtering in rd2sphinx.
+License: MIT
+Encoding: UTF-8

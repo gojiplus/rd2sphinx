@@ -1,0 +1,128 @@
+render_demo <- function() {
+  fixture <- demo_fixture()
+  use_sphinx(path = fixture, docs_dir = "docs", github_actions = FALSE)
+  generated <- render_sphinx(
+    path = fixture, docs_dir = "docs", include = "exports", quiet = TRUE
+  )
+  list(fixture = fixture, generated = generated)
+}
+
+test_that("render_sphinx() documents exports and skips internals", {
+  demo <- render_demo()
+  reference <- file.path(demo$fixture, "docs", "reference")
+
+  expect_true(file.exists(file.path(reference, "add_numbers.rst")))
+  expect_true(file.exists(file.path(reference, "demo_data.rst")))
+  expect_true(file.exists(file.path(reference, "plus.rst")))
+  expect_true(file.exists(file.path(reference, "demo_label.rst")))
+  expect_false(file.exists(file.path(reference, "internal_helper.rst")))
+  expect_length(demo$generated, 5L)
+})
+
+test_that("include = 'all' documents the internal topic too", {
+  fixture <- demo_fixture()
+  use_sphinx(path = fixture, docs_dir = "docs", github_actions = FALSE)
+  render_sphinx(path = fixture, docs_dir = "docs", include = "all", quiet = TRUE)
+
+  expect_true(file.exists(file.path(fixture, "docs", "reference", "internal_helper.rst")))
+})
+
+test_that("a function topic becomes a semantic r:function directive", {
+  demo <- render_demo()
+  page <- rendered_page(demo$fixture, "add_numbers")
+
+  expect_match(page, ".. r:function:: add_numbers", fixed = TRUE)
+  expect_match(page, ":canonical: add_numbers", fixed = TRUE)
+  expect_match(page, ":package: demoR", fixed = TRUE)
+  expect_match(page, ":param x: A numeric value.", fixed = TRUE)
+  expect_match(page, ":returns:", fixed = TRUE)
+})
+
+test_that("a local Rd link becomes a cross-reference, not a literal", {
+  demo <- render_demo()
+  expect_match(rendered_page(demo$fixture, "add_numbers"), ":r:obj:`demo_data`", fixed = TRUE)
+})
+
+test_that("plain prose is not mistaken for reStructuredText markup", {
+  page <- rendered_page(render_demo()$fixture, "add_numbers")
+
+  expect_match(page, "snake\\_case", fixed = TRUE)
+  expect_match(page, "a \\* b", fixed = TRUE)
+  expect_match(page, "x \\| y", fixed = TRUE)
+  expect_match(page, "``inline_code``", fixed = TRUE)
+  expect_match(page, "\\- This sentence", fixed = TRUE)
+})
+
+test_that("consecutive lines of prose keep their line breaks", {
+  # strsplit() drops a trailing empty field, which used to delete the newline
+  # on every Rd text node that ended in one and run paragraphs together.
+  page <- rendered_page(render_demo()$fixture, "add_numbers")
+  expect_match(page, "cross-reference.\n", fixed = TRUE)
+  expect_no_match(page, "cross-reference.Plain", fixed = TRUE)
+})
+
+test_that("itemize renders its content, braced or not", {
+  # \item inside \itemize is an empty marker: the content is the sibling nodes
+  # that follow it. Rendering the \item node itself yields empty bullets.
+  page <- rendered_page(render_demo()$fixture, "add_numbers")
+
+  expect_match(page, "- The first item, with a second line", fixed = TRUE)
+  expect_match(page, "\n     that must stay inside the item.", fixed = TRUE)
+  expect_match(page, "- The second item.", fixed = TRUE)
+  expect_match(page, "- An unbraced item with ``code`` in it.", fixed = TRUE)
+  expect_match(page, "- Another unbraced item.", fixed = TRUE)
+})
+
+test_that("enumerate and describe render as their own RST constructs", {
+  page <- rendered_page(render_demo()$fixture, "add_numbers")
+
+  expect_match(page, "#. Step one.", fixed = TRUE)
+  expect_match(page, "#. Step two.", fixed = TRUE)
+  expect_match(page, "alpha\n", fixed = TRUE)
+  expect_match(page, "The first thing.", fixed = TRUE)
+})
+
+test_that("a block construct is separated from surrounding prose", {
+  # Without a blank line either side, a bullet list is swallowed by the
+  # preceding paragraph and RST renders it as running text.
+  page <- rendered_page(render_demo()$fixture, "add_numbers")
+
+  expect_match(page, "an itemized list:\n\n   - The first item", fixed = TRUE)
+  expect_match(page, "\n\n   This closing paragraph must not run into the list above.", fixed = TRUE)
+})
+
+test_that("infix and replacement functions keep usable names", {
+  demo <- render_demo()
+
+  infix <- rendered_page(demo$fixture, "plus")
+  expect_match(infix, ".. r:function:: x %plus% y", fixed = TRUE)
+  expect_match(infix, ":canonical: %plus%", fixed = TRUE)
+
+  replacement <- rendered_page(demo$fixture, "demo_label")
+  expect_match(replacement, ".. r:function:: demo_label(x) <- value", fixed = TRUE)
+  expect_match(replacement, ":canonical: demo_label<-", fixed = TRUE)
+})
+
+test_that("a data topic becomes an r:data directive", {
+  expect_match(rendered_page(render_demo()$fixture, "demo_data"), ".. r:data::", fixed = TRUE)
+})
+
+test_that("re-rendering removes pages whose topics are gone", {
+  demo <- render_demo()
+  reference <- file.path(demo$fixture, "docs", "reference")
+  stray <- file.path(reference, "stale.rst")
+  writeLines(c(".. Generated by rd2sphinx; do not edit.", "", "Stale"), stray)
+  handwritten <- file.path(reference, "notes.rst")
+  writeLines(c("Notes", "====="), handwritten)
+
+  render_sphinx(path = demo$fixture, docs_dir = "docs", quiet = TRUE)
+
+  expect_false(file.exists(stray))
+  expect_true(file.exists(handwritten))
+})
+
+test_that("render_sphinx() needs a man/ directory", {
+  fixture <- demo_fixture()
+  unlink(file.path(fixture, "man"), recursive = TRUE)
+  expect_error(render_sphinx(path = fixture, docs_dir = "docs"), "man/")
+})

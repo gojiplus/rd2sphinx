@@ -1,0 +1,4 @@
+export(add_numbers)
+export(demo_data)
+export("%plus%")
+export("demo_label<-")

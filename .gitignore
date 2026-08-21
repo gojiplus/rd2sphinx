@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rcheck/
+*.tar.gz
+_site/
+sphinx-docs/reference/
+sphinx-docs/_ext/rd2sphinx_domain.py
