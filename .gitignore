@@ -7,3 +7,7 @@
 _site/
 sphinx-docs/reference/
 sphinx-docs/_ext/rd2sphinx_domain.py
+
+# pkgdown output. Disposable local build product; CI builds and
+# publishes the definitive site.
+/docs/

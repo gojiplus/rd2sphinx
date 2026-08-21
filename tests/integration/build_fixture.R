@@ -1,5 +1,8 @@
 args <- commandArgs(trailingOnly = TRUE)
-package_root <- if (length(args)) normalizePath(args[[1L]], mustWork = TRUE) else normalizePath("rd2sphinx", mustWork = TRUE)
+package_root <- normalizePath(
+  if (length(args)) args[[1L]] else "rd2sphinx",
+  mustWork = TRUE
+)
 fixture_source <- file.path(package_root, "tests", "fixtures", "demo")
 fixture <- tempfile("rd2sphinx-demo-")
 dir.create(fixture)

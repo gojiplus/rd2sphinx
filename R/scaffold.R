@@ -12,11 +12,11 @@
 #' @return Invisibly, the paths that were created or updated.
 #' @export
 use_sphinx <- function(
-    path = ".",
-    docs_dir = "docs",
-    overwrite = FALSE,
-    github_actions = TRUE,
-    source_branch = NULL) {
+  path = ".",
+  docs_dir = "docs",
+  overwrite = FALSE,
+  github_actions = TRUE,
+  source_branch = NULL) {
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   description <- read_package_description(path)
   package <- description$Package
@@ -175,7 +175,7 @@ sphinx_conf_template <- function(docs_dir = "docs", source_branch = NULL) {
 }
 
 sphinx_index_template <- function(package, description) {
-  description <- rst_text(clean_block(description %||% ""))
+  description <- rst_text(clean_block(first_nonempty(description, "")))
   c(
     rst_heading(package, "="),
     "",
@@ -261,7 +261,10 @@ sphinx_workflow_template <- function(docs_dir) {
     "          remotes::install_github('gojiplus/rd2sphinx')",
     "        shell: Rscript {0}",
     "      - name: Install Sphinx",
-    paste0("        run: python -m pip install -r ", shQuote(paste0(docs_dir, "/requirements.txt"))),
+    paste0(
+      "        run: python -m pip install -r ",
+      shQuote(paste0(docs_dir, "/requirements.txt"))
+    ),
     "      - name: Render R reference",
     paste0("        run: rd2sphinx::render_sphinx(docs_dir = '", docs_dir, "')"),
     "        shell: Rscript {0}",

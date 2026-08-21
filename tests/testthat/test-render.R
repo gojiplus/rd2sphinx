@@ -1,12 +1,3 @@
-render_demo <- function() {
-  fixture <- demo_fixture()
-  use_sphinx(path = fixture, docs_dir = "docs", github_actions = FALSE)
-  generated <- render_sphinx(
-    path = fixture, docs_dir = "docs", include = "exports", quiet = TRUE
-  )
-  list(fixture = fixture, generated = generated)
-}
-
 test_that("render_sphinx() documents exports and skips internals", {
   demo <- render_demo()
   reference <- file.path(demo$fixture, "docs", "reference")
@@ -88,7 +79,10 @@ test_that("a block construct is separated from surrounding prose", {
   page <- rendered_page(render_demo()$fixture, "add_numbers")
 
   expect_match(page, "an itemized list:\n\n   - The first item", fixed = TRUE)
-  expect_match(page, "\n\n   This closing paragraph must not run into the list above.", fixed = TRUE)
+  expect_match(
+    page, "\n\n   This closing paragraph must not run into the list above.",
+    fixed = TRUE
+  )
 })
 
 test_that("infix and replacement functions keep usable names", {

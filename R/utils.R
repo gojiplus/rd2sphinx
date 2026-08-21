@@ -1,9 +1,18 @@
-`%||%` <- function(x, y) {
-  if (is.null(x) || length(x) == 0L) {
-    return(y)
+# Deliberately not named `%||%`: base R gained that operator in 4.4 with
+# NULL-only semantics, and this one also treats empty, NA and "" as absent.
+# Shadowing the base operator with a different rule is a trap.
+first_nonempty <- function(...) {
+  candidates <- list(...)
+  for (candidate in candidates) {
+    if (is.null(candidate) || length(candidate) == 0L) {
+      next
+    }
+    first <- as.character(candidate[[1L]])[[1L]]
+    if (!is.na(first) && nzchar(first)) {
+      return(candidate)
+    }
   }
-  first <- as.character(x[[1L]])[[1L]]
-  if (is.na(first) || !nzchar(first)) y else x
+  if (length(candidates)) candidates[[length(candidates)]] else NULL
 }
 
 rd2sphinx_path <- function(path, root) {
@@ -237,7 +246,7 @@ detect_git_branch <- function(path, fallback = "main") {
     )),
     error = function(...) character()
   )
-  branch <- trimws(branch[[1L]] %||% "")
+  branch <- trimws(first_nonempty(branch[[1L]], ""))
   if (!nzchar(branch) || identical(branch, "HEAD")) fallback else branch
 }
 

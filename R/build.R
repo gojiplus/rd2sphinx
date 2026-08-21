@@ -15,16 +15,16 @@
 #' @return Invisibly, the normalized output directory.
 #' @export
 build_sphinx <- function(
-    path = ".",
-    docs_dir = "docs",
-    output_dir = "_site",
-    builder = "html",
-    include = c("exports", "all"),
-    warnings_as_errors = TRUE,
-    keep_going = TRUE,
-    fresh = FALSE,
-    sphinx_build = Sys.which("sphinx-build"),
-    quiet = FALSE) {
+  path = ".",
+  docs_dir = "docs",
+  output_dir = "_site",
+  builder = "html",
+  include = c("exports", "all"),
+  warnings_as_errors = TRUE,
+  keep_going = TRUE,
+  fresh = FALSE,
+  sphinx_build = Sys.which("sphinx-build"),
+  quiet = FALSE) {
   include <- match.arg(include)
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   docs_path <- rd2sphinx_path(docs_dir, path)

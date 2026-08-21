@@ -13,12 +13,12 @@
 #' @return Invisibly, a character vector of generated files.
 #' @export
 render_sphinx <- function(
-    path = ".",
-    docs_dir = "docs",
-    reference_dir = "reference",
-    include = c("exports", "all"),
-    clean = TRUE,
-    quiet = FALSE) {
+  path = ".",
+  docs_dir = "docs",
+  reference_dir = "reference",
+  include = c("exports", "all"),
+  clean = TRUE,
+  quiet = FALSE) {
   include <- match.arg(include)
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   description <- read_package_description(path)
@@ -163,7 +163,9 @@ render_reference_index <- function(package, entries) {
         package = "pkg",
         "topic"
       )
-      lines <- c(lines, paste0("* :r:", role, ":`", entry$canonical, "` \u2014 ", rst_text(entry$title)))
+      lines <- c(lines, paste0(
+        "* :r:", role, ":`", entry$canonical, "` \u2014 ", rst_text(entry$title)
+      ))
     }
   }
 

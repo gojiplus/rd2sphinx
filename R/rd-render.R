@@ -122,7 +122,9 @@ rd_inline <- function(x, aliases = list()) {
 
     target <- sub("\\(\\)$", "", target)
     qualified <- if (nzchar(package)) paste0(package, "::", target) else target
-    canonical <- aliases[[qualified]] %||% aliases[[target]] %||% aliases[[display]]
+    canonical <- first_nonempty(
+      aliases[[qualified]], aliases[[target]], aliases[[display]]
+    )
     if (!is.null(canonical) && nzchar(canonical)) {
       if (identical(display, canonical) || identical(display, paste0(canonical, "()"))) {
         return(paste0(":r:obj:`", canonical, "`"))
@@ -341,7 +343,11 @@ rd_argument_items <- function(section, aliases = list()) {
   items <- Filter(function(child) identical(rd_tag(child), "item"), section)
   lapply(items, function(item) {
     name <- if (length(item)) collapse_whitespace(rd_raw(item[[1L]])) else ""
-    description <- if (length(item) >= 2L) clean_block(rd_block(item[[2L]], aliases = aliases)) else ""
+    description <- if (length(item) >= 2L) {
+      clean_block(rd_block(item[[2L]], aliases = aliases))
+    } else {
+      ""
+    }
     list(name = name, description = description)
   })
 }
@@ -460,13 +466,14 @@ read_rd_topic <- function(rd, file = "") {
 
   usage_section <- rd_section(rd, "usage")
   usage <- if (is.null(usage_section)) character() else split_usage(rd_raw(usage_section))
-  aliases <- unique(vapply(rd_sections(rd, "alias"), function(x) collapse_whitespace(rd_raw(x)), character(1L)))
+  section_text <- function(x) collapse_whitespace(rd_raw(x))
+  aliases <- unique(vapply(rd_sections(rd, "alias"), section_text, character(1L)))
   aliases <- aliases[nzchar(aliases)]
   fallback_name <- if (nzchar(file)) tools::file_path_sans_ext(basename(file)) else "topic"
-  name <- raw_section("name") %||% fallback_name
+  name <- first_nonempty(raw_section("name"), fallback_name)
 
   doc_type <- tolower(raw_section("docType"))
-  keywords <- tolower(vapply(rd_sections(rd, "keyword"), function(x) collapse_whitespace(rd_raw(x)), character(1L)))
+  keywords <- tolower(vapply(rd_sections(rd, "keyword"), section_text, character(1L)))
   kind <- if (identical(doc_type, "package")) {
     "package"
   } else if (identical(doc_type, "data") || "datasets" %in% keywords) {
@@ -491,7 +498,7 @@ read_rd_topic <- function(rd, file = "") {
     canonical = canonical,
     aliases = unique(c(canonical, usage_names, aliases)),
     usage_names = usage_names,
-    title = raw_section("title") %||% canonical,
+    title = first_nonempty(raw_section("title"), canonical),
     usage = usage,
     doc_type = doc_type,
     keywords = keywords,
@@ -520,7 +527,8 @@ should_include_topic <- function(topic, exports, include) {
     return(TRUE)
   }
 
-  if (topic$doc_type %in% c("package", "data", "class") || topic$kind %in% c("package", "data", "class")) {
+  always <- c("package", "data", "class")
+  if (topic$doc_type %in% always || topic$kind %in% always) {
     return(TRUE)
   }
 
@@ -537,7 +545,11 @@ render_custom_sections <- function(topic, aliases) {
   if (!length(sections)) {
     return(character())
   }
-  vapply(sections, function(section) clean_block(rd_block(section, aliases = aliases)), character(1L))
+  vapply(
+    sections,
+    function(section) clean_block(rd_block(section, aliases = aliases)),
+    character(1L)
+  )
 }
 
 render_topic_body <- function(topic, aliases) {
@@ -620,7 +632,11 @@ render_topic_rst <- function(topic, package, aliases) {
     options <- c(
       paste0("   :canonical: ", object_name),
       paste0("   :package: ", package),
-      if (length(alias_values)) paste0("   :aliases: ", paste(alias_values, collapse = ", ")) else character(),
+      if (length(alias_values)) {
+        paste0("   :aliases: ", paste(alias_values, collapse = ", "))
+      } else {
+        character()
+      },
       if (duplicate_name) "   :no-target:" else character()
     )
     content <- if (i == 1L && length(body)) {
