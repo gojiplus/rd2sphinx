@@ -120,3 +120,13 @@ test_that("render_sphinx() needs a man/ directory", {
   unlink(file.path(fixture, "man"), recursive = TRUE)
   expect_error(render_sphinx(path = fixture, docs_dir = "docs"), "man/")
 })
+
+test_that("inline verb keeps its content literal", {
+  # roxygen2 emits \verb{} for markdown backticks. rd_block() used to return
+  # the VERB text raw, so an asterisk inside inline code reached the page as
+  # an RST emphasis marker and failed the build under -W.
+  page <- rendered_page(render_demo()$fixture, "add_numbers")
+
+  expect_match(page, "``man/*.Rd``", fixed = TRUE)
+  expect_no_match(page, "arrives as man/*.Rd", fixed = TRUE)
+})

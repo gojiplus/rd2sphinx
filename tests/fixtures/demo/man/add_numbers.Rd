@@ -16,6 +16,8 @@ The numeric sum of \code{x} and \code{y}.
 Add two numbers while demonstrating a local semantic cross-reference.
 Plain syntax such as snake_case, a * b, x | y, and `inline_code` must not
 become reStructuredText markup.
+Inline code from roxygen backticks arrives as \verb{man/*.Rd} and must be
+literal, asterisk and all.
 - This sentence begins with a dash but is prose, not a list.
 }
 \details{

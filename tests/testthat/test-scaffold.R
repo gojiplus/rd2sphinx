@@ -23,6 +23,7 @@ test_that("use_sphinx() gitignores the generated inputs", {
   expect_true("_site/" %in% ignore)
   expect_true("docs/reference/" %in% ignore)
   expect_true("docs/_ext/rd2sphinx_domain.py" %in% ignore)
+  expect_true("__pycache__/" %in% ignore)
 })
 
 test_that("use_sphinx() leaves an existing conf.py alone unless told otherwise", {

@@ -69,7 +69,10 @@ use_sphinx <- function(
     c(
       "_site/",
       paste0(docs_dir, "/reference/"),
-      paste0(docs_dir, "/_ext/rd2sphinx_domain.py")
+      paste0(docs_dir, "/_ext/rd2sphinx_domain.py"),
+      # Sphinx imports the copied extension, and Python caches the bytecode
+      # next to it.
+      "__pycache__/"
     )
   )
 

@@ -1,16 +1,14 @@
-name: pkgdown
+name: sphinx-docs
 
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-  release:
-    types: [published]
   workflow_dispatch:
 
 jobs:
-  pkgdown:
+  sphinx:
     # A called workflow cannot grant itself more than the caller has, so every
     # scope the site build and deploy use has to be granted here. Naming any
     # scope drops the rest to none, so contents has to be restated even though
@@ -19,4 +17,6 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    uses: gojiplus/r-canon/.github/workflows/reusable-pkgdown.yml@v2
+    uses: gojiplus/r-canon/.github/workflows/reusable-sphinx.yml@v2
+    with:
+      deploy: true

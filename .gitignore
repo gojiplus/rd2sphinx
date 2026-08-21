@@ -11,3 +11,4 @@ sphinx-docs/_ext/rd2sphinx_domain.py
 # pkgdown output. Disposable local build product; CI builds and
 # publishes the definitive site.
 /docs/
+__pycache__/

@@ -88,7 +88,7 @@ rd_inline <- function(x, aliases = list()) {
     return(rst_literal(collapse_whitespace(rd_raw(x))))
   }
 
-  if (tag %in% c("command", "env", "file", "kbd", "option", "samp")) {
+  if (tag %in% c("verb", "command", "env", "file", "kbd", "option", "samp")) {
     return(rst_literal(collapse_whitespace(rd_raw(x))))
   }
 
@@ -244,7 +244,7 @@ rd_block <- function(x, aliases = list()) {
   }
 
   inline_tags <- c(
-    "code", "command", "env", "file", "kbd", "option", "samp", "pkg",
+    "code", "verb", "command", "env", "file", "kbd", "option", "samp", "pkg",
     "emph", "strong", "link", "url", "email", "href", "eqn", "deqn",
     "method", "S3method", "S4method", "dots", "ldots"
   )
