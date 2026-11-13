@@ -6,3 +6,4 @@
 ^\.lintr$
 ^sphinx-docs$
 ^_site$
+^\.codespellrc$
